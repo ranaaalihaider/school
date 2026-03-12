@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEF-iS Students — 13 Records</title>
+<style>
+:root {
+  --blue-dark:#1a365d;
+  --blue:#2b6cb0;
+  --blue-light:#ebf8ff;
+  --green:#276749;
+  --red:#c53030;
+  --gray-50:#f7fafc;
+  --gray-100:#edf2f7;
+  --gray-200:#e2e8f0;
+  --gray-400:#a0aec0;
+  --gray-600:#718096;
+  --gray-800:#2d3748;
+  --gray-900:#1a202c;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
+
+/* ── Header ── */
+.header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));color:#fff;padding:24px 20px 20px}
+.header h1{font-size:clamp(18px,4vw,26px);font-weight:800;letter-spacing:-0.3px}
+.header-sub{opacity:.8;font-size:13px;margin-top:4px}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.stat{background:rgba(255,255,255,.15);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.2);padding:10px 16px;border-radius:10px;min-width:90px}
+.stat-num{font-size:22px;font-weight:800;line-height:1}
+.stat-label{font-size:11px;opacity:.8;margin-top:3px}
+
+/* ── Controls ── */
+.controls{position:sticky;top:0;z-index:100;background:rgba(247,250,252,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--gray-200);padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:200px;max-width:360px}
+.search-wrap input{width:100%;padding:9px 12px 9px 36px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:13.5px;outline:none;background:#fff;transition:.2s}
+.search-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,108,176,.12)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5}
+.cls-filters{display:flex;flex-wrap:wrap;gap:6px}
+.cls-btn{padding:6px 14px;border:1.5px solid var(--gray-200);border-radius:99px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:var(--gray-600);transition:.15s;white-space:nowrap}
+.cls-btn:hover{border-color:var(--blue);color:var(--blue)}
+.cls-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.result-count{font-size:12px;color:var(--gray-400);white-space:nowrap;margin-left:auto}
+
+/* ── Cards Grid ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px;padding:16px}
+.card{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden;display:flex;gap:0;transition:transform .15s,box-shadow .15s;border:1px solid var(--gray-100)}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+.card.hidden{display:none}
+
+/* Card left: photo */
+.card-pic{position:relative;flex-shrink:0;width:90px;background:var(--gray-100)}
+.card-pic img{width:90px;height:100%;min-height:110px;object-fit:cover;display:block}
+.no-pic{width:90px;min-height:110px;display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--gray-100);color:var(--gray-400)}
+.card-num{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.45);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;line-height:1.4}
+
+/* Card right: info */
+.card-body{flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card-header-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-name{font-size:14.5px;font-weight:700;color:var(--gray-900);line-height:1.2;word-break:break-word}
+.card-father{font-size:12px;color:var(--gray-600);margin-top:3px}
+.card-badges{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.badge-class{background:var(--blue-light);color:var(--blue);font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;white-space:nowrap}
+.badge-status{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.badge-status.active{background:#c6f6d5;color:var(--green)}
+.badge-status.inactive{background:#fed7d7;color:var(--red)}
+.card-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px}
+.info-item{display:flex;flex-direction:column;gap:1px}
+.info-label{font-size:10px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.info-val{font-size:12.5px;color:var(--gray-800);font-weight:500;word-break:break-all}
+.info-val.reg{font-family:monospace;font-size:13px;color:var(--blue);font-weight:700}
+
+/* No results */
+.no-results{display:none;text-align:center;padding:60px 20px;color:var(--gray-400)}
+.no-results.show{display:block}
+.no-results-icon{font-size:48px;margin-bottom:12px}
+
+/* Footer */
+.footer{text-align:center;padding:24px 16px;font-size:11px;color:var(--gray-400);border-top:1px solid var(--gray-200);margin-top:8px}
+
+/* Mobile tweaks */
+@media(max-width:480px){
+  .card-pic{width:76px}
+  .card-pic img,.no-pic{width:76px}
+  .card-name{font-size:13.5px}
+  .info-val{font-size:11.5px}
+  .controls{padding:10px 12px}
+  .grid{padding:10px;gap:10px}
+}
+
+@media print{
+  .controls{display:none}
+  .card:hover{transform:none;box-shadow:none}
+  body{background:#fff}
+  .grid{grid-template-columns:repeat(3,1fr);gap:8px;padding:8px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎓 PEF-iS Student Records</h1>
+  <div class="header-sub">Exported on 12-Mar-2026, 9:46 am</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">13</div><div class="stat-label">Total Students</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Active</div></div>
+    <div class="stat"><div class="stat-num">13</div><div class="stat-label">Inactive</div></div>
+    <div class="stat"><div class="stat-num">6</div><div class="stat-label">Classes</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search name, reg no, father..." oninput="applyFilters()">
+  </div>
+  <div class="cls-filters" id="classFilters">
+    <button class="cls-btn active" onclick="filterClass('All')" data-class="All">🎓 All Classes</button><button class="cls-btn" onclick="filterClass('2')" data-class="2">Class 2</button><button class="cls-btn" onclick="filterClass('3')" data-class="3">Class 3</button><button class="cls-btn" onclick="filterClass('4')" data-class="4">Class 4</button><button class="cls-btn" onclick="filterClass('5')" data-class="5">Class 5</button><button class="cls-btn" onclick="filterClass('7')" data-class="7">Class 7</button><button class="cls-btn" onclick="filterClass('PREP')" data-class="PREP">Class PREP</button>
+  </div>
+  <span class="result-count" id="resultCount">13 students</span>
+</div>
+
+<div class="grid" id="cardGrid">
+  <div class="card" data-class="7" data-search="naveed ijaz mohammad ijaz 2407 7">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/USP_88934866-155b-4ac1-8e86-da7afbe0829b_2865688.jpg" alt="NAVEED IJAZ" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">1</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">NAVEED IJAZ</div>
+        <div class="card-father">👨 MOHAMMAD IJAZ</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 7</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2407</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-9613785-9</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 24 2021</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">March 06 2013</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="3" data-search="muhammad rizwan muhammad shahzad 2567 3">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/88934866-155b-4ac1-8e86-da7afbe0829b-2567-20250422084114488.jpg" alt="Muhammad Rizwan" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">2</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">Muhammad Rizwan</div>
+        <div class="card-father">👨 Muhammad Shahzad</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 3</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2567</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-3791298-3</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">August 10 2023</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">December 08 2012</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="4" data-search="amina gul babur ali 2452 4">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/USP_88934866-155b-4ac1-8e86-da7afbe0829b_9339086.jpg" alt="Amina Gul" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">3</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">Amina Gul</div>
+        <div class="card-father">👨 Babur Ali</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 4</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2452</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-2897250-0</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 29 2023</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">March 03 2017</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="4" data-search="jaweria adrees muhammad idress 2444 4">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/USP_88934866-155b-4ac1-8e86-da7afbe0829b_9366455.jpg" alt="JAWERIA ADREES" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">4</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">JAWERIA ADREES</div>
+        <div class="card-father">👨 MUHAMMAD IDRESS</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 4</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2444</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-5464159-6</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 16 2023</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">June 10 2018</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="3" data-search="mohammad kashif abdul shakoor 2523 3">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/USP_88934866-155b-4ac1-8e86-da7afbe0829b_10052732.jpg" alt="MOHAMMAD KASHIF" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">5</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">MOHAMMAD KASHIF</div>
+        <div class="card-father">👨 ABDUL SHAKOOR</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 3</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2523</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-1036484-1</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">September 06 2023</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">April 10 2013</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="5" data-search="muhammad aaftab abdul ghaffar 2520 5">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/USP_88934866-155b-4ac1-8e86-da7afbe0829b_10428730.jpg" alt="MUHAMMAD AAFTAB" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">6</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">MUHAMMAD AAFTAB</div>
+        <div class="card-father">👨 ABDUL GHAFFAR</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 5</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2520</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-5213863-3</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 29 2023</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">February 03 2013</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="3" data-search="muneeb muhammad mujahid hussain 2465 3">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/88934866-155b-4ac1-8e86-da7afbe0829b-2465-20230908174401484.jpg" alt="MUNEEB" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">7</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">MUNEEB</div>
+        <div class="card-father">👨 MUHAMMAD MUJAHID HUSSAIN</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 3</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2465</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-2020591-5</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 07 2023</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">February 03 2012</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="3" data-search="misbah ghaffar abdul ghaffar 2517 3">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/USP_88934866-155b-4ac1-8e86-da7afbe0829b_10443336.jpg" alt="MISBAH GHAFFAR" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">8</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">MISBAH GHAFFAR</div>
+        <div class="card-father">👨 ABDUL GHAFFAR</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 3</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2517</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-4699024-8</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 10 2023</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">June 15 2016</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="3" data-search="muhammad hussain shahid mahboob 2588 3">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/88934866-155b-4ac1-8e86-da7afbe0829b-2588-20250430003419090.jpg" alt="Muhammad Hussain" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">9</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">Muhammad Hussain</div>
+        <div class="card-father">👨 Shahid Mahboob</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 3</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2588</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-0172869-7</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 20 2025</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">October 10 2013</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="3" data-search="muhammad kashan muhammad sohail 2587 3">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/88934866-155b-4ac1-8e86-da7afbe0829b-2587-20250422220641105.jpg" alt="Muhammad Kashan" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">10</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">Muhammad Kashan</div>
+        <div class="card-father">👨 Muhammad Sohail</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 3</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2587</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-3001782-1</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 20 2025</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">January 01 2015</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="PREP" data-search="middat muhammad sohail 2584 prep">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/88934866-155b-4ac1-8e86-da7afbe0829b-2584-20250422221210673.jpg" alt="Middat" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">11</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">Middat</div>
+        <div class="card-father">👨 Muhammad Sohail</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class PREP</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2584</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-3146272-4</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 18 2025</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">May 01 2019</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="2" data-search="manahil muhammad sohail 2581 2">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/88934866-155b-4ac1-8e86-da7afbe0829b-2581-20250422215633025.jpg" alt="Manahil" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">12</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">Manahil</div>
+        <div class="card-father">👨 Muhammad Sohail</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class 2</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2581</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-3137722-4</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">March 18 2025</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">February 03 2017</span></div>
+    </div>
+  </div>
+</div>
+<div class="card" data-class="PREP" data-search="muhammad saad faheem ahmad 2618 prep">
+  <div class="card-pic"><img src="https://www.pefsis.edu.pk/Images/SISPics/FAS/620/88934866-155b-4ac1-8e86-da7afbe0829b-2618-20250430001507211.jpg" alt="Muhammad saad" onerror="this.onerror=null;this.src='';this.parentElement.innerHTML='<div class=\'no-pic\'>👤</div>'"><span class="card-num">13</span></div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <div>
+        <div class="card-name">Muhammad saad</div>
+        <div class="card-father">👨 Faheem Ahmad</div>
+      </div>
+      <div class="card-badges">
+        <span class="badge-class">Class PREP</span>
+        <span class="badge-status inactive">Migrate</span>
+      </div>
+    </div>
+    <div class="card-info-grid">
+      <div class="info-item"><span class="info-label">Reg No</span><span class="info-val reg">2618</span></div>
+      <div class="info-item"><span class="info-label">B Form</span><span class="info-val">32304-0512237-5</span></div>
+      <div class="info-item"><span class="info-label">📅 Admitted</span><span class="info-val">April 21 2025</span></div>
+      <div class="info-item"><span class="info-label">🎂 Date of Birth</span><span class="info-val">March 01 2020</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="no-results" id="noResults">
+  <div class="no-results-icon">🔍</div>
+  <div>No students found</div>
+  <div style="font-size:12px;margin-top:6px">Try a different search or class filter</div>
+</div>
+
+<div class="footer">PEF-iS Student Export • 13 students • 12-Mar-2026, 9:46 am</div>
+
+<script>
+let activeClass = 'All';
+
+function filterClass(cls) {
+  activeClass = cls;
+  document.querySelectorAll('.cls-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.class === cls);
+  });
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.card');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const matchClass = activeClass === 'All' || card.dataset.class === activeClass;
+    const matchSearch = !q || card.dataset.search.includes(q);
+    const show = matchClass && matchSearch;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+
+  document.getElementById('resultCount').textContent = visible + ' student' + (visible !== 1 ? 's' : '');
+  document.getElementById('noResults').classList.toggle('show', visible === 0);
+}
+</script>
+</body>
+</html>
